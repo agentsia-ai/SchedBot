@@ -1,0 +1,202 @@
+# ============================================================
+# SchedBot — Configuration Template
+# Copy to config.yaml and customize for your deployment.
+#
+# config.yaml is gitignored. Never commit a configured copy
+# of this file to a public repository.
+#
+# This example is a fictional landscaping company; replace the
+# fields with your own. The nested keys map 1:1 onto the Pydantic
+# models in src/schedbot/config/loader.py.
+# ============================================================
+
+# --- Identity ---
+# The operator is the human (or shared inbox) who approves messages
+# the engine drafts. operator_email is also the default From address
+# on confirmations and reminders.
+operator_name: "Pat Operator"
+operator_email: "ops@greenleaf-landscaping.example"
+
+# --- Business ---
+business:
+  name: "Greenleaf Landscaping"
+  business_type: "landscaping"
+
+  # IANA timezone. ALL appointment times are stored UTC and presented
+  # in this zone. Setting this wrong is the #1 source of off-by-an-hour bugs.
+  timezone: "America/New_York"
+
+  # Customer-facing tone descriptor. Concrete > abstract:
+  # "warm, plain-spoken, never over-promises" beats "professional".
+  communication_tone: "warm, plain-spoken, never over-promises"
+
+  # Working hours per weekday. 0=Mon, 6=Sun. Multiple windows per day
+  # are allowed (e.g. closed for lunch from 12:00 to 13:00).
+  working_hours:
+    - { weekday: 0, open_at: "08:00", close_at: "17:00" }
+    - { weekday: 1, open_at: "08:00", close_at: "17:00" }
+    - { weekday: 2, open_at: "08:00", close_at: "17:00" }
+    - { weekday: 3, open_at: "08:00", close_at: "17:00" }
+    - { weekday: 4, open_at: "08:00", close_at: "16:00" }   # half-day Friday
+    - { weekday: 5, open_at: "09:00", close_at: "13:00" }   # Saturdays only morning
+    # No Sunday entry → closed.
+
+  # Bookable services. `slug` is the stable id used by config + cal.com
+  # event-type slugs + the CLI. `name` is what customers see.
+  services:
+    - slug: "estimate"
+      name: "On-site Estimate"
+      duration_minutes: 30
+      buffer_before_minutes: 15        # travel time before
+      buffer_after_minutes: 15         # write-up time after
+      location_kind: "in_person"
+      description: "30-minute on-site visit to scope the job and quote a price."
+
+    - slug: "lawn-cut"
+      name: "Lawn Cut & Edge"
+      duration_minutes: 60
+      buffer_before_minutes: 0
+      buffer_after_minutes: 30         # equipment reset
+      location_kind: "in_person"
+      description: "Standard mow, edge, and blow-down."
+
+    - slug: "phone-consult"
+      name: "Phone Consultation"
+      duration_minutes: 15
+      buffer_before_minutes: 0
+      buffer_after_minutes: 5
+      location_kind: "phone"
+      description: "Free 15-minute call about a planned project."
+
+# --- AI ---
+ai:
+  model: "claude-sonnet-4-20250514"
+
+  # Point at external prompt files to override engine defaults without
+  # subclassing. Paths are relative to the working directory at runtime.
+  # classifier_prompt_path: "./prompts/classifier.txt"
+  # drafter_prompt_path: "./prompts/drafter.txt"
+  # scheduler_prompt_path: "./prompts/scheduler.txt"
+
+  # Classifier confidence floor. Anything below this is collapsed to
+  # `RequestKind.UNCERTAIN`, which never auto-acts.
+  min_request_confidence: 0.55
+
+  # Hard cap on generated message length. Overflow is truncated.
+  max_message_chars: 1500
+
+# --- Scheduler / Availability ---
+scheduler:
+  # Earliest a customer can book — defends against same-minute booking races.
+  min_lead_minutes: 60
+
+  # How many days into the future are bookable.
+  booking_window_days: 60
+
+  # Default slot stride (minutes) when generating availability windows.
+  # Each service can have its own duration / buffer; this is the floor.
+  default_slot_stride_minutes: 15
+
+  # Hard ceiling on how many candidate slots the AI scheduler proposes
+  # per request — keeps prompts and customer replies short.
+  max_proposed_slots: 3
+
+# --- Reminders ---
+reminders:
+  # How far before the appointment to fire each reminder.
+  # [1440, 60] = 24 hours + 1 hour before.
+  offsets_minutes_before: [1440, 60]
+
+  # Channels in priority order. First channel for which the client has
+  # contact info wins. ("email" requires client.email; "sms" requires
+  # client.phone.)
+  channels: ["email", "sms"]
+
+  # Whether the engine drafts a follow-up after a no-show.
+  no_show_followup_enabled: true
+
+# --- Waitlist ---
+waitlist:
+  enabled: true
+  # When a slot opens, how long does the offered customer have to accept
+  # before the offer expires and the next person gets it?
+  offer_ttl_minutes: 120
+  # Auto-draft an offer message when promoting a waitlist entry.
+  auto_draft_offer: true
+
+# --- Outreach (outbound messaging) ---
+outreach:
+  # SAFETY: both default to the strict setting. The engine refuses to
+  # send anything with require_approval=true unless a draft has been
+  # explicitly approved. auto_send is belt-and-braces — leaving it false
+  # prevents a future misconfiguration from ever silently auto-sending.
+  require_approval: true
+  auto_send: false
+
+  daily_email_limit: 200
+  daily_sms_limit: 100
+
+  # Appended to confirmations + reminders. {operator_name} and
+  # {business_name} are substituted at runtime.
+  email_signature: |
+    Best,
+    {operator_name}
+    {business_name}
+  sms_signature: "- {business_name}"
+
+  # Cancellation policy text inserted into cancellation acknowledgements
+  # and reschedule responses. Plain text, no markdown.
+  cancellation_policy_text: |
+    Cancellations are appreciated at least 24 hours in advance so we can
+    offer the slot to another client.
+
+  # Whether to attach a "want to rebook?" call-to-action to cancellation
+  # messages, and what to say.
+  rebooking_offer_enabled: true
+  rebooking_offer_text: |
+    If you'd like to rebook for another time, just reply and we'll find
+    you a new slot.
+
+# --- cal.com (recommended primary integration) ---
+calcom:
+  enabled: true
+  base_url: "https://api.cal.com/v2"
+  # The cal.com username — the part after `cal.com/` in your booking URL.
+  # For https://cal.com/agentsia/discovery-call this is "agentsia".
+  username: "greenleaf-landscaping"
+  # Default event-type slug to create bookings against if none specified.
+  default_event_type_slug: "estimate"
+
+# --- Google Calendar (optional secondary integration) ---
+google_calendar:
+  enabled: false
+  calendar_id: "primary"          # "primary" or a specific calendar id
+  # Whether to write back to the calendar when SchedBot creates a booking
+  # (vs. read-only conflict checking).
+  write_enabled: false
+
+# --- Calendly (optional alternative — pick cal.com OR Calendly, not both) ---
+calendly:
+  enabled: false
+  organization_uri: ""            # https://api.calendly.com/organizations/...
+  user_uri: ""                    # https://api.calendly.com/users/...
+
+# --- Inbound webhook receiver ---
+# For accepting bookings from website contact forms / embedded widgets.
+webhook:
+  enabled: false
+  hmac_header: "X-SchedBot-Signature"
+  expected_path: "/webhooks/booking"
+
+# --- Email parser (turn inbound emails into booking requests) ---
+email_parser:
+  enabled: false
+  # Heuristics to help the AI extract intent from prose.
+  keywords_book: ["book", "schedule", "appointment", "reserve", "set up"]
+  keywords_reschedule: ["reschedule", "move", "push", "change time"]
+  keywords_cancel: ["cancel", "can't make it", "won't be able"]
+
+# --- Database ---
+database:
+  backend: "sqlite"
+  sqlite_path: "./data/schedbot.db"

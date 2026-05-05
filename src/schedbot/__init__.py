@@ -1,7 +1,7 @@
 """SchedBot — AI-powered scheduling and appointment-management engine.
 
 Public entry points:
-    - schedbot.cli.main                 : Click CLI (the `nova` command)
+    - schedbot.cli.main                 : Click CLI (the `schedbot` command)
     - schedbot.mcp_server.server.main   : MCP stdio server
 
 Pluggable base classes (subclass these in a downstream persona repo):

@@ -65,7 +65,7 @@ sms = [
 ]
 
 [project.scripts]
-nova = "schedbot.cli:main"
+schedbot = "schedbot.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/schedbot"]

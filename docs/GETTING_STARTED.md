@@ -39,7 +39,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv sync --extra dev
 ```
 
-After this, the `nova` command is available inside `.venv`.
+After this, the `schedbot` command is available inside `.venv`.
 
 To activate the environment for the session:
 ```bash
@@ -52,7 +52,7 @@ source .venv/bin/activate
 
 Or prefix all commands with `uv run`:
 ```bash
-uv run nova pipeline
+uv run schedbot pipeline
 ```
 
 ---
@@ -134,7 +134,7 @@ and reminder.
 ## Step 6 — Initialize the Database
 
 ```bash
-uv run nova pipeline
+uv run schedbot pipeline
 ```
 
 This creates `./data/schedbot.db` and prints an (empty) pipeline summary:
@@ -156,7 +156,7 @@ For the cal.com path, you have two options:
 ### Option A — Manual seed (fastest)
 
 ```bash
-uv run nova schedule
+uv run schedbot schedule
 ```
 
 → no rows yet. Add one for testing via the MCP `book_appointment` tool, or
@@ -184,7 +184,7 @@ Each webhook hit is decoded into a `RawBookingRequest` and persisted via
 ## Step 8 — See Today + Tomorrow's Schedule
 
 ```bash
-uv run nova digest
+uv run schedbot digest
 ```
 
 This is the morning briefing. It groups appointments by day with status
@@ -210,9 +210,9 @@ atomically (defending against double-bookings) and drafts a confirmation
 message and the configured reminder sequence:
 
 ```bash
-uv run nova confirm <appointment-id>
+uv run schedbot confirm <appointment-id>
 # or just the first 8 chars of the id:
-uv run nova confirm abcd1234
+uv run schedbot confirm abcd1234
 ```
 
 Output:
@@ -231,7 +231,7 @@ waiting for your approval. Nothing has been sent.
 When a customer asks "what do you have next Tuesday?", get answers from:
 
 ```bash
-uv run nova availability estimate --days 7 --limit 10
+uv run schedbot availability estimate --days 7 --limit 10
 ```
 
 This generates candidate slots that respect business hours, the service's
@@ -244,14 +244,14 @@ dropped.
 ## Step 11 — Review Drafts
 
 ```bash
-uv run nova review
+uv run schedbot review
 ```
 
 Lists every drafted reminder and every drafted confirmation awaiting your
 approval. To see one in detail:
 
 ```bash
-uv run nova show abcd1234
+uv run schedbot show abcd1234
 ```
 
 You'll see the appointment, the drafted confirmation body, and the queued
@@ -267,14 +267,14 @@ sends until you approve.
 
 ```bash
 # Reschedule — finds alternatives + drafts a "here are some options" reply
-uv run nova reschedule abcd1234 --message "Customer wants to move to next week"
+uv run schedbot reschedule abcd1234 --message "Customer wants to move to next week"
 
 # Cancel — drafts the cancellation acknowledgement, optionally promotes
 # the longest-waiting waitlist entry to OFFERED
-uv run nova cancel abcd1234 --reason "weather"
+uv run schedbot cancel abcd1234 --reason "weather"
 
 # No-show — flags as missed, drafts the follow-up
-uv run nova no-show abcd1234
+uv run schedbot no-show abcd1234
 ```
 
 ---
@@ -285,7 +285,7 @@ SchedBot's MCP server is the most pleasant way to operate day-to-day —
 Claude can run all of the above tools conversationally. Start it:
 
 ```bash
-uv run nova mcp
+uv run schedbot mcp
 ```
 
 Then see `docs/MCP_SETUP.md` for the Claude Desktop configuration block.
@@ -294,7 +294,7 @@ Then see `docs/MCP_SETUP.md` for the Claude Desktop configuration block.
 
 ## Common Issues
 
-**`nova: command not found`**
+**`schedbot: command not found`**
 → Your virtual environment isn't activated. Run `source .venv/bin/activate`
   (or `.venv\Scripts\Activate.ps1` on Windows), or prefix commands with
   `uv run`.

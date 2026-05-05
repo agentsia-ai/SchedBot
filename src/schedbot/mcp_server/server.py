@@ -4,7 +4,7 @@ Exposes SchedBot as an MCP tool server so Claude Desktop (or any MCP
 client) can run scheduling operations conversationally.
 
 Usage:
-    nova mcp
+    schedbot mcp
     # or: python -m schedbot.mcp
 
 See docs/MCP_SETUP.md for the Claude Desktop configuration block.

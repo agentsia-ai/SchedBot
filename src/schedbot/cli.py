@@ -1,11 +1,11 @@
-"""SchedBot CLI — the `nova` command entry point.
+"""SchedBot CLI — the `schedbot` command entry point.
 
 Mirrors LeadGen and CustComm's CLI shape: a Click group with verb-commands
 that each dispatch into an async service call. Rich is used for pretty
 human-readable output.
 
-Note: the CLI is for human operators. The MCP server (`nova mcp`) is the
-machine-readable surface that Claude Desktop talks to.
+Note: the CLI is for human operators. The MCP server (`schedbot mcp`) is
+the machine-readable surface that Claude Desktop talks to.
 """
 
 from __future__ import annotations
@@ -55,10 +55,10 @@ async def _boot() -> tuple:
 
 
 @click.group()
-@click.version_option(__version__, prog_name="nova")
+@click.version_option(__version__, prog_name="schedbot")
 @click.option("--debug", is_flag=True, help="Enable verbose logging.")
 def main(debug: bool) -> None:
-    """Nova — SchedBot's CLI. Scheduling, confirmations, reminders, waitlist."""
+    """SchedBot — AI-powered scheduling and appointment-management engine."""
     _configure_logging(debug)
 
 

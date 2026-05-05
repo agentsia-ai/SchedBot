@@ -146,7 +146,7 @@ retried send can't double-fire.
 ```
                    ┌─────────────────────────────┐
                    │  agentsia nova mcp   OR     │
-                   │  nova mcp                   │
+                   │  schedbot mcp               │
                    │  OR python -m schedbot.mcp  │
                    └──────────────┬──────────────┘
                                   │ imports

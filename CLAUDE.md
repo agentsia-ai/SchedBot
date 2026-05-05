@@ -63,7 +63,7 @@ src/schedbot/
 │   └── database.py           # AppointmentDatabase — async SQLite store
 ├── mcp_server/
 │   └── server.py             # MCP server exposing all tools to Claude Desktop
-└── cli.py                    # Click CLI entry point — `nova ...`
+└── cli.py                    # Click CLI entry point — `schedbot ...`
 ```
 
 ### Data Flow
@@ -220,22 +220,22 @@ cp .env.example .env                       # fill in API keys
 cp config.example.yaml config.yaml         # customize identity + services
 
 # Initialize database (safe to run anytime)
-uv run nova pipeline
+uv run schedbot pipeline
 
 # See today + tomorrow's bookings
-uv run nova digest
+uv run schedbot digest
 
 # Confirm a requested appointment (atomic; drafts confirmation + queues reminders)
-uv run nova confirm <appointment-id>
+uv run schedbot confirm <appointment-id>
 
 # Draft pending reminders that don't yet have bodies
-uv run nova remind
+uv run schedbot remind
 
 # Review drafted confirmations + reminders awaiting approval
-uv run nova review
+uv run schedbot review
 
 # Start MCP server
-uv run nova mcp
+uv run schedbot mcp
 ```
 
 ### Adding a new booking source
@@ -375,7 +375,7 @@ calls with `unittest.mock.AsyncMock` — never make real API calls
 
 ## Common Gotchas
 
-- **`nova` command not found:** activate `.venv` or prefix with `uv run`.
+- **`schedbot` command not found:** activate `.venv` or prefix with `uv run`.
 - **cal.com webhook signature failures:** confirm `CALCOM_WEBHOOK_SECRET`
   matches the secret you set on the cal.com side, and confirm your edge
   proxy isn't rewriting the body before signature verification.

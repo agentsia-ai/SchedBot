@@ -79,7 +79,7 @@ SchedBot/
 ├── src/
 │   └── schedbot/                      # The package (standard Python src-layout)
 │       ├── __init__.py
-│       ├── cli.py                     # Click CLI entry point (`nova ...`)
+│       ├── cli.py                     # Click CLI entry point (`schedbot ...`)
 │       ├── mcp.py                     # `python -m schedbot.mcp` MCP entry shim
 │       ├── _time.py                   # UTC-aware datetime helpers
 │       ├── models.py                  # Appointment, TimeSlot, BusinessHours, ReminderRecord, WaitlistEntry
@@ -148,22 +148,22 @@ cp .env.example .env                     # add your API keys (ANTHROPIC + CALCOM
 cp config.example.yaml config.yaml       # customize identity + services + working hours
 
 # 4. Initialize (creates the SQLite DB; safe to run anytime)
-uv run nova pipeline
+uv run schedbot pipeline
 
 # 5. See today + tomorrow's bookings
-uv run nova digest
+uv run schedbot digest
 
 # 6. Check availability for a service
-uv run nova availability estimate
+uv run schedbot availability estimate
 
 # 7. Confirm a requested appointment (drafts confirmation + queues reminders)
-uv run nova confirm <appointment-id>
+uv run schedbot confirm <appointment-id>
 
 # 8. Review drafts awaiting your approval
-uv run nova review
+uv run schedbot review
 
 # 9. Start the MCP server (connect to Claude Desktop)
-uv run nova mcp
+uv run schedbot mcp
 ```
 
 See [`docs/GETTING_STARTED.md`](./docs/GETTING_STARTED.md) for the full walkthrough, [`docs/API_KEYS.md`](./docs/API_KEYS.md) for the cal.com / Google Calendar credential setup, and [`docs/MCP_SETUP.md`](./docs/MCP_SETUP.md) for Claude Desktop setup.

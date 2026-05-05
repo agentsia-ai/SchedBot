@@ -54,7 +54,7 @@ the repo:
 {
   "mcpServers": {
     "schedbot": {
-      "command": "C:\\path\\to\\your\\SchedBot\\.venv\\Scripts\\nova.exe",
+      "command": "C:\\path\\to\\your\\SchedBot\\.venv\\Scripts\\schedbot.exe",
       "args": ["mcp"],
       "cwd": "C:\\path\\to\\your\\SchedBot"
     }
@@ -176,7 +176,7 @@ auto-send" guardrail expressed at the tool surface.
 
 **Tools not showing up in Claude Desktop:**
 - Confirm the `cwd` path is correct and absolute (Option A only).
-- Confirm `nova` / `agentsia` resolves on your PATH, or use the absolute
+- Confirm `schedbot` / `agentsia` resolves on your PATH, or use the absolute
   executable path (see the Windows example above).
 - Check Claude Desktop logs:
   - macOS: `~/Library/Logs/Claude/`
@@ -198,14 +198,14 @@ auto-send" guardrail expressed at the tool surface.
 - Confirm `ANTHROPIC_API_KEY` is set.
 - Lower `ai.min_request_confidence` if your inbound messages are
   legitimately ambiguous.
-- Run `nova --debug ...` on a related CLI command to see raw Claude
+- Run `schedbot --debug ...` on a related CLI command to see raw Claude
   responses surfaced through the logger.
 
 **`confirm_appointment` returns "Could not confirm":**
 - The appointment isn't in `REQUESTED` status (it may already be
   `CONFIRMED` or `CANCELLED`).
 - An overlapping CONFIRMED appointment already exists for the same
-  service. Run `nova show <id>` and `nova availability <service>` to
+  service. Run `schedbot show <id>` and `schedbot availability <service>` to
   inspect.
 
 **cal.com webhook signature failures:**

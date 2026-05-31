@@ -54,8 +54,8 @@ Hard rules — you MUST follow all of these without exception:
   - Use the local presentation timezone the user message specifies. Do
     not include raw ISO strings or +00:00 offsets in customer-facing
     prose — say "Tuesday at 2:30 PM" not "2026-05-04T18:30:00Z".
-  - Do not include a signature block. The engine appends the operator's
-    signature separately.
+  - Do not include a signature block. The engine appends the agent
+    signature separately (agent_name + business_name).
   - For SMS messages (the user message will say "sms"), keep the body
     under 320 characters and skip the subject. For email, include both
     a subject line and a body.
@@ -323,6 +323,7 @@ Return JSON.""",
                 f"{type(self).__name__} body exceeded max_chars={self.max_chars}; truncated."
             )
 
+        body = self._append_signature(body, channel)
         return subject, body
 
     # ── helpers ──────────────────────────────────────────────────────────
@@ -351,6 +352,22 @@ Return JSON.""",
             f"{loc_line}\n"
             f"Notes: {appt.intake_notes or '(none)'}"
         )
+
+    def _append_signature(self, body: str, channel: str) -> str:
+        template = (
+            self.config.outreach.sms_signature
+            if channel == "sms"
+            else self.config.outreach.email_signature
+        )
+        if not template:
+            return body
+        sig = template.format(
+            agent_name=self.config.agent_name,
+            business_name=self.config.business.name,
+        )
+        if channel == "sms":
+            return f"{body.strip()}\n{sig.strip()}"
+        return f"{body.strip()}\n\n{sig.strip()}"
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────

@@ -48,6 +48,9 @@ into one of the following request kinds:
   - question    : a non-action question (pricing, directions, prep
                   instructions, "do you offer X?"). Should be escalated to
                   a human, not auto-handled.
+                  # FUTURE: human escalation replies should surface
+                  # config.operator_name / config.operator_email for direct
+                  # operator contact — not implemented in v1.
   - uncertain   : you cannot confidently choose any of the above.
 
 Decision rules:

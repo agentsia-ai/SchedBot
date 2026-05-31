@@ -36,7 +36,7 @@ from mcp.types import TextContent, Tool
 from schedbot.ai.classifier import RequestClassifier
 from schedbot.ai.drafter import MessageDrafter
 from schedbot.ai.scheduler import AvailabilityScheduler
-from schedbot.config.loader import load_api_keys, load_config
+from schedbot.config.loader import display_agent_name, load_api_keys, load_config
 from schedbot.crm.database import AppointmentDatabase
 from schedbot.models import (
     Appointment,
@@ -310,6 +310,7 @@ async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         digest = await daily_digest(config, db)
         return _json(
             {
+                "agent": display_agent_name(config),
                 "today": [_appt_view(a) for a in digest["today"]],
                 "tomorrow": [_appt_view(a) for a in digest["tomorrow"]],
                 "today_count": len(digest["today"]),
@@ -583,7 +584,8 @@ async def main(
 
     # Route ALL logs to stderr so stdout stays sacred for JSON-RPC frames.
     logging.basicConfig(level=logging.INFO, stream=sys.stderr)
-    logger.info("Starting SchedBot MCP server...")
+    agent_label = display_agent_name(config)
+    logger.info("Starting SchedBot MCP server (agent=%s)...", agent_label)
     async with stdio_server() as (read_stream, write_stream):
         await app.run(read_stream, write_stream, app.create_initialization_options())
 

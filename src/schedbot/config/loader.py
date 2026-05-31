@@ -68,9 +68,14 @@ class ServiceConfig(BaseModel):
 
 class WorkingWindow(BaseModel):
     """Single open window for a single weekday. Multiple windows per day are
-    allowed (e.g. closed for lunch)."""
+    allowed (e.g. closed for lunch).
 
-    weekday: int                          # 0=Monday .. 6=Sunday
+    `weekday` uses the same convention as CustComm and agentsia-core configs:
+    0 = Sunday, 1 = Monday, …, 6 = Saturday. AvailabilityEngine matches
+    windows via schedbot._time.weekday_sunday0().
+    """
+
+    weekday: int                          # 0=Sunday .. 6=Saturday
     open_at: str = "09:00"                # HH:MM (24h), interpreted in business tz
     close_at: str = "17:00"
 
@@ -202,7 +207,7 @@ class OutreachConfig(BaseModel):
     daily_sms_limit: int = 100
 
     email_signature: str = (
-        "Best,\n{operator_name}\n{business_name}"
+        "Best,\n{agent_name}\n{business_name}"
     )
     sms_signature: str = "- {business_name}"
 
@@ -231,9 +236,13 @@ class SchedBotConfig(BaseModel):
     so a YAML can be structured + validated and a downstream persona can
     build a TypedDict-like view of just the bits it cares about."""
 
-    # Identity (operator + business). Mirrors CustComm's identity block.
+    # Identity (operator + agent). Mirrors CustComm's identity block.
+    client_name: str = ""
     operator_name: str = "Operator"
+    operator_title: str = ""
     operator_email: str = "ops@example.com"
+    agent_name: str = ""
+    agent_email: str = ""
 
     business: BusinessConfig = BusinessConfig()
     ai: AIConfig = AIConfig()
@@ -291,6 +300,8 @@ class APIKeys(BaseModel):
     smtp_username: str = Field(default="", alias="SMTP_USERNAME")
     smtp_password: str = Field(default="", alias="SMTP_PASSWORD")
     smtp_from_email: str = Field(default="", alias="SMTP_FROM_EMAIL")
+    # FUTURE: when outbound SMTP sends human-escalation mail, prefer
+    # config.operator_name / operator_email over this env override.
     smtp_from_name: str = Field(default="", alias="SMTP_FROM_NAME")
 
     # Twilio (SMS)
@@ -317,6 +328,16 @@ class APIKeys(BaseModel):
 
 
 # ── Loader ────────────────────────────────────────────────────────────────────
+
+
+def display_agent_name(config: SchedBotConfig) -> str:
+    """Agent-facing label for logs and MCP metadata.
+
+    Productized deployments (e.g. agentsia-core) set config.agent_name.
+    Standalone SchedBot installs fall back to the engine name.
+    """
+    name = (config.agent_name or "").strip()
+    return name or "schedbot"
 
 
 def load_config(config_path: str | Path | None = None) -> SchedBotConfig:

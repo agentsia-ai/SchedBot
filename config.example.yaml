@@ -11,11 +11,15 @@
 # ============================================================
 
 # --- Identity ---
-# The operator is the human (or shared inbox) who approves messages
-# the engine drafts. operator_email is also the default From address
-# on confirmations and reminders.
+# operator_* — human who approves drafts and handles escalations.
+# agent_* — optional scheduling-agent identity for transactional messages
+# and MCP metadata; set by downstream persona deployments (e.g. agentsia-core).
+client_name: "Greenleaf Landscaping"
 operator_name: "Pat Operator"
+operator_title: ""
 operator_email: "ops@greenleaf-landscaping.example"
+agent_name: ""
+agent_email: ""
 
 # --- Business ---
 business:
@@ -30,15 +34,14 @@ business:
   # "warm, plain-spoken, never over-promises" beats "professional".
   communication_tone: "warm, plain-spoken, never over-promises"
 
-  # Working hours per weekday. 0=Mon, 6=Sun. Multiple windows per day
-  # are allowed (e.g. closed for lunch from 12:00 to 13:00).
+  # Working hours per weekday. 0=Sunday .. 6=Saturday (matches CustComm).
   working_hours:
-    - { weekday: 0, open_at: "08:00", close_at: "17:00" }
-    - { weekday: 1, open_at: "08:00", close_at: "17:00" }
-    - { weekday: 2, open_at: "08:00", close_at: "17:00" }
-    - { weekday: 3, open_at: "08:00", close_at: "17:00" }
-    - { weekday: 4, open_at: "08:00", close_at: "16:00" }   # half-day Friday
-    - { weekday: 5, open_at: "09:00", close_at: "13:00" }   # Saturdays only morning
+    - { weekday: 1, open_at: "08:00", close_at: "17:00" }  # Mon
+    - { weekday: 2, open_at: "08:00", close_at: "17:00" }  # Tue
+    - { weekday: 3, open_at: "08:00", close_at: "17:00" }  # Wed
+    - { weekday: 4, open_at: "08:00", close_at: "17:00" }  # Thu
+    - { weekday: 5, open_at: "08:00", close_at: "16:00" }  # Fri
+    - { weekday: 6, open_at: "09:00", close_at: "13:00" }  # Sat
     # No Sunday entry → closed.
 
   # Bookable services. `slug` is the stable id used by config + cal.com
@@ -136,11 +139,11 @@ outreach:
   daily_email_limit: 200
   daily_sms_limit: 100
 
-  # Appended to confirmations + reminders. {operator_name} and
-  # {business_name} are substituted at runtime.
+  # Appended to confirmations, reminders, cancellations, and rebooking
+  # offers. {agent_name} and {business_name} are substituted at runtime.
   email_signature: |
     Best,
-    {operator_name}
+    {agent_name}
     {business_name}
   sms_signature: "- {business_name}"
 

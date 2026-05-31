@@ -160,10 +160,14 @@ class ServiceType(BaseModel):
 
 
 class WorkingHours(BaseModel):
-    """Per-weekday open hours. `weekday` follows Python's Monday=0 .. Sunday=6
-    convention. Multiple windows per day are allowed (e.g. closed for lunch)."""
+    """Legacy in-memory weekday window (time objects).
 
-    weekday: int                              # 0=Mon, 6=Sun
+    Note: YAML config uses ``config.loader.WorkingWindow`` with weekday
+    0=Sunday. This model is retained for typed helpers only — availability
+    parsing reads ``business.working_hours`` from config, not this class.
+    """
+
+    weekday: int                              # follows config convention if populated
     open_at: time
     close_at: time
 

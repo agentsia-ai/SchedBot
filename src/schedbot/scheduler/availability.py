@@ -26,7 +26,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from typing import Iterable, Optional
 
-from schedbot._time import get_tz, now_utc
+from schedbot._time import get_tz, now_utc, weekday_sunday0
 from schedbot.config.loader import SchedBotConfig, ServiceConfig
 from schedbot.models import Appointment, TimeSlot
 
@@ -97,8 +97,9 @@ class AvailabilityEngine:
         end_day = current_day + timedelta(days=days)
 
         while current_day < end_day and len(out) < max_slots:
+            # business.working_hours.weekday uses 0=Sunday (see WorkingWindow).
             for window in self.config.business.working_hours:
-                if window.weekday != current_day.weekday():
+                if window.weekday != weekday_sunday0(current_day):
                     continue
 
                 open_local = self._combine_local(current_day, window.open_at)

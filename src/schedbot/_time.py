@@ -16,7 +16,7 @@ re-exported at the package level — engine internals + tests only.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, tzinfo
+from datetime import date, datetime, timezone, tzinfo
 from typing import Optional
 
 from dateutil import tz as _dateutil_tz
@@ -91,3 +91,12 @@ def format_local(dt: datetime | None, tz_name: str, fmt: str = "%a %b %d %I:%M %
     if dt is None:
         return ""
     return to_local(dt, tz_name).strftime(fmt)
+
+
+def weekday_sunday0(d: date) -> int:
+    """Map a calendar date to 0=Sunday .. 6=Saturday.
+
+    Config ``working_hours[].weekday`` and AvailabilityEngine both use this
+    convention (distinct from Python's date.weekday() where Monday=0).
+    """
+    return (d.weekday() + 1) % 7

@@ -48,6 +48,8 @@ dependencies = [
     # Utilities
     "rich>=13.7.0",
     "python-dateutil>=2.9.0",
+    # IANA tz database for zoneinfo on Windows (stdlib has no tzdata on win32)
+    "tzdata>=2024.1",
 ]
 
 [project.optional-dependencies]

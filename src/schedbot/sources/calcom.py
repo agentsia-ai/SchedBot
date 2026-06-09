@@ -51,7 +51,9 @@ class CalComSource(BookingSource):
         if not keys.calcom_api_key:
             raise RuntimeError(
                 "CALCOM_API_KEY is not set. Get a key from "
-                "https://cal.com/settings/developer/api-keys and add it to .env."
+                "https://cal.com/settings/developer/api-keys and provide it as an "
+                "environment variable (set it in Doppler for production, or a local "
+                ".env for development)."
             )
 
     async def fetch_new(self) -> AsyncIterator[RawBookingRequest]:

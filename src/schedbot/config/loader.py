@@ -359,7 +359,18 @@ def load_config(config_path: str | Path | None = None) -> SchedBotConfig:
     with open(path, encoding="utf-8") as f:
         raw = yaml.safe_load(f) or {}
 
-    return SchedBotConfig(**raw)
+    config = SchedBotConfig(**raw)
+
+    # Anchor a relative SQLite path to the config file's directory rather than
+    # the process working directory, so the DB lives in a stable location no
+    # matter where the engine is launched from (Claude Desktop with no cwd, a
+    # manual run from a parent repo, ...). An already-absolute path — e.g. one
+    # the agentsia-core launcher pre-resolved — is left untouched.
+    sqlite_path = Path(config.database.sqlite_path)
+    if not sqlite_path.is_absolute():
+        config.database.sqlite_path = str((path.resolve().parent / sqlite_path).resolve())
+
+    return config
 
 
 def load_api_keys() -> APIKeys:
